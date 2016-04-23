@@ -1,0 +1,11 @@
+{
+	"name": "snake-d",
+	"description": "The classic snake game in D.",
+	"license": "GPL-3.0",
+	"copyright": "Copyright © 2016, meatatt",
+	"authors": ["meatatt"],
+	"dependencies": {
+		"termbox": "0.0.5"
+	},
+	"targetType": "executable"
+}
