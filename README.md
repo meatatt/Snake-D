@@ -1,2 +1,2 @@
 # Snake-D
-The Classic Game, 'Snake', written in D.
+A TUI based snake game written in D.
