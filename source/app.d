@@ -1,8 +1,9 @@
-﻿//Written by Sheldon Shen, aka meatatt, 2016-04-22
-//See the included license.txt for copyright and license.
+﻿//Written by Sheldon Shen, aka meatatt, 2016-04-23
+//See the included LICENSE for copyright and license.
 
 import std.concurrency: send;
 import std.conv: to;
+
 import termbox:Event,pollEvent,Key;
 
 import snake,clibase;
