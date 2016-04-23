@@ -75,15 +75,12 @@ private:
 
 class SnakeBox{
 	this(Position startPoint,Size size_f){
-		//_pos=startPoint;
-		//_size=size_f;
 		_shape=PRange(startPoint,size_f);
 		_space=(size_f.width-1)*(size_f.height-1);
 		drawBox();
 		updateScr();
 	}
 	size_t space(){return _space;}
-	//Size size(){return _size;}
 	Position entry(){return Position(_shape.xl+1,_shape.yt+1);}
 	void startGame(){
 		_timeLoopTid=spawn(&_timeLoop,space,entry,_shape.innerRange);
@@ -98,9 +95,7 @@ class SnakeBox{
 	struct TermSignal{}
 	enum termSignal=TermSignal.init;
 private:
-	//deprecated Size _size;
 	size_t _space;
-	//deprecated Position _pos;
 	PRange _shape;
 	Tid _timeLoopTid;
 	string _timeLoopTidString;
@@ -108,14 +103,11 @@ private:
 		addLocalBuf(_shape.topLeft,TableChar.top_left,SnakeColor.box);
 		addLocalBuf(_shape.topRight,TableChar.top_right,SnakeColor.box);
 		addLocalBuf(_shape.bottomLeft,TableChar.bottom_left,SnakeColor.box);
-		addLocalBuf(_shape.bottomRight,
-			TableChar.bottom_right,SnakeColor.box);
-		foreach (wi;[_shape.xl,_shape.xr])
-			foreach (hi;_shape.yt+1.._shape.yb)
-				addLocalBuf(wi, hi, TableChar.left,SnakeColor.box);
-		foreach (hi;[_shape.yt,_shape.yb])
-			foreach (wi;_shape.xl+1.._shape.xr)
-				addLocalBuf(wi, hi, TableChar.top,SnakeColor.box);
+		addLocalBuf(_shape.bottomRight,TableChar.bottom_right,SnakeColor.box);
+		setRange(LineY(_shape.xl,_shape.yt+1,_shape.yb)[],TableChar.left,SnakeColor.box);
+		setRange(LineY(_shape.xr,_shape.yt+1,_shape.yb)[],TableChar.right,SnakeColor.box);
+		setRange(LineX(_shape.yt,_shape.xl+1,_shape.xr)[],TableChar.top,SnakeColor.box);
+		setRange(LineX(_shape.yb,_shape.xl+1,_shape.xr)[],TableChar.bottom,SnakeColor.box);
 	}
 	static void _timeLoop(size_t space_f,Position entry_f,PRange pRange){
 		Snake soul=new Snake(space_f,entry_f);

@@ -7,7 +7,7 @@ import core.sync.mutex: Mutex;
 import std.algorithm: map;
 import std.array: array;
 import std.container.dlist: DList;
-
+import std.range.primitives: isInputRange,ElementType;
 import termbox;
 public import termbox: Cell,Color,Attribute;
 
@@ -69,6 +69,29 @@ struct PRange{
 		return PRange(xl+1,xr,yt+1,yb);
 	}
 }
+enum LineType{x,y}
+struct Line(LineType type){
+	this(uint d,uint s,uint e){
+		_range=Range(d,s,e);
+	}
+	static struct Range{
+		bool empty(){return _s==_e;}
+		void popFront(){++_s;}
+		Position front(){
+			static if (type==LineType.x)
+				return Position(_s,_d);
+			else
+				return Position(_d,_s);
+		}
+	private:
+		uint _d,_s,_e;
+	}
+	Range opSlice(){return _range;}
+private:
+	Range _range;
+}
+alias LineX=Line!(LineType.x);
+alias LineY=Line!(LineType.y);
 
 struct PCell{
 	Position pos;
@@ -96,10 +119,10 @@ Cell scrLookup(Position pos){
 
 alias DList!PCell CellBuf;
 CellBuf threadLocalBuf=CellBuf();
-void addLocalBuf(in int x,in int y,in uint ch,in ushort fg=0,in ushort bg=0){
+void addLocalBuf(in int x,in int y,in uint ch,in ushort fg=BlankCell.fg,in ushort bg=BlankCell.bg){
 	threadLocalBuf.stableInsert(PCell(Position(x,y),Cell(ch,fg,bg)));
 }
-void addLocalBuf(in Position pos,in uint ch,in ushort fg=0,in ushort bg=0){
+void addLocalBuf(in Position pos,in uint ch,in ushort fg=BlankCell.fg,in ushort bg=BlankCell.bg){
 	threadLocalBuf.stableInsert(PCell(pos,Cell(ch,fg,bg)));
 }
 void addLocalBuf(in Position pos,in Cell cell){
@@ -110,17 +133,18 @@ void clrLocalBuf(){
 		threadLocalBuf.clear();
 }
 
-void setArea(Cell cell,PRange area){synchronized(mutex)with(area){
-		foreach (xi;xl..xr)
-			foreach (yLine;scrBuf[yt..yb])
-				yLine[xi]=cell;
+void setRange(Range)(Range range,Cell cell=BlankCell)
+if (isInputRange!Range&&is(ElementType!Range:Position)){synchronized(mutex){
+		applyLocalBuf();
+		foreach (Position pos;range)
+			setCell(pos,cell);
 	}}
-void applyLocalBuf(){synchronized(mutex){
-		foreach (c;threadLocalBuf)
-			with (c.pos)
-				if (x>=0&&y>=0&&x<width()&&y<height())
-					scrBuf[y][x]=c.cell;
-		clrLocalBuf();
+void setRange(Range)(Range range,uint ch,ushort fg=BlankCell.fg,ushort bg=BlankCell.bg)
+if (isInputRange!Range&&is(ElementType!Range:Position)){synchronized(mutex){
+		applyLocalBuf();
+		Cell cell=Cell(ch,fg,bg);
+		foreach (Position pos;range)
+			setCell(pos,cell);
 	}}
 void updateScr(){synchronized(mutex){
 		applyLocalBuf();
@@ -149,4 +173,13 @@ void refetchBuf(){
 	}
 	assert (scrBuf.length==height()&&scrBuf[0].length==width());
 	//roScrBuf=scrBuf.map!(a=>a.idup).array;
+}
+void applyLocalBuf(){
+	foreach (c;threadLocalBuf)
+		setCell(c.pos,c.cell);
+	clrLocalBuf();
+}
+void setCell(Position pos,Cell cell){
+	with (pos) if (x>=0&&y>=0&&x<width()&&y<height())
+		scrBuf[y][x]=cell;
 }
