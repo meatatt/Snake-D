@@ -112,11 +112,11 @@ struct PCell{
 	}
 }
 
-const(Cell[][]) scrTable(){
-		return scrBuf;
+const(Cell[][]) scrMirror(){
+		return _scrMirror;
 }
 Cell scrLookup(Position pos){
-	return scrBuf[pos.y][pos.x];
+	return _scrMirror[pos.y][pos.x];
 }
 
 alias DList!PCell CellBuf;
@@ -137,19 +137,19 @@ void clrLocalBuf(){
 
 void setRange(Range)(Range range,Cell cell=BlankCell)
 if (isInputRange!Range&&is(ElementType!Range:Position)){synchronized(mutex){
-		applyLocalBuf();
+		_applyLocalBuf();
 		foreach (Position pos;range)
 			setCell(pos,cell);
 	}}
 void setRange(Range)(Range range,uint ch,ushort fg=BlankCell.fg,ushort bg=BlankCell.bg)
 if (isInputRange!Range&&is(ElementType!Range:Position)){synchronized(mutex){
-		applyLocalBuf();
+		_applyLocalBuf();
 		Cell cell=Cell(ch,fg,bg);
 		foreach (Position pos;range)
 			setCell(pos,cell);
 	}}
 void updateScr(){synchronized(mutex){
-		applyLocalBuf();
+		_applyLocalBuf();
 		flush();
 		refetchBuf();
 	}}
@@ -162,7 +162,7 @@ void clrScr(){synchronized(mutex){
 private:
 __gshared Mutex mutex;
 __gshared Cell[][] scrBuf;
-//__gshared immutable(Cell[])[] roScrBuf;
+__gshared immutable(Cell[])[] _scrMirror;
 void refetchBuf(){
 	Cell* buf=cellBuffer();
 	if (scrBuf is null || scrBuf[0].ptr !is buf){
@@ -174,9 +174,9 @@ void refetchBuf(){
 		}
 	}
 	assert (scrBuf.length==height()&&scrBuf[0].length==width());
-	//roScrBuf=scrBuf.map!(a=>a.idup).array;
+	_scrMirror=scrBuf.map!(a=>a.idup).array;
 }
-void applyLocalBuf(){
+void _applyLocalBuf(){
 	foreach (c;threadLocalBuf)
 		setCell(c.pos,c.cell);
 	clrLocalBuf();

@@ -87,6 +87,7 @@ class SnakeBox{
 	}
 	size_t space(){return _space;}
 	Position entry(){return Position(_shape.xl+1,_shape.yt+1);}
+	PRange shape(){return _shape;}
 	void startGame(){
 		_timeLoopTid=spawn(&_timeLoop,space,entry,_shape.innerRange);
 		_timeLoopTidString=_timeLoopTid.to!string;
