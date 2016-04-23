@@ -13,8 +13,11 @@
 
 # Executables
 *.exe
+snake-d
 
 # DUB
 .dub
 docs.json
 __dummy.html
+dub.selections.json
+
