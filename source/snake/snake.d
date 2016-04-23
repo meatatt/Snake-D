@@ -3,7 +3,12 @@
 
 module snake;
 
-import std.concurrency,std.container.dlist,std.random,std.conv,std.datetime: msecs;
+import std.concurrency: spawn,Tid,register,locate,receiveTimeout;
+import std.container.dlist: DList;
+import std.random: uniform;
+import std.conv: to;
+import std.datetime: msecs;
+
 import clibase;
 
 enum InitDirection=Direction.down;

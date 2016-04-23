@@ -4,12 +4,14 @@
 module clibase;
 
 import core.sync.mutex: Mutex;
+
 import std.algorithm: map;
 import std.array: array;
 import std.container.dlist: DList;
 import std.range.primitives: isInputRange,ElementType;
+
 import termbox;
-public import termbox: Cell,Color,Attribute;
+public import termbox: Cell,Color,Attribute,height,width;
 
 shared static this(){
 	mutex=new Mutex();
