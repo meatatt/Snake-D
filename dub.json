@@ -1,6 +1,6 @@
 {
 	"name": "snake-d",
-	"description": "The classic snake game in D.",
+	"description": "A TUI based snake game written in D.",
 	"license": "GPL-3.0",
 	"copyright": "Copyright © 2016, meatatt",
 	"authors": ["meatatt"],
