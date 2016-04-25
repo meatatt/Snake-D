@@ -2,3 +2,4 @@ language: d
 before_script:
 	mkdir -p ../../../.dub/packages/termbox-0.0.5
 	ln -s /home/travis/build/meatatt/Snake-D/termbox-master/usr/local/lib/libtermbox.a ../../../.dub/packages/termbox-0.0.5/libtermbox.a
+	echo DONE
